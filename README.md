@@ -1,292 +1,141 @@
-# PDFMate Pro 📄
+# Pro PDF Mate
 
-**35+ PDF tools with AI, digital signatures, cloud storage and a full PDF editor.**  
-All PDF processing runs entirely in the browser — no files are ever uploaded to a server.
+Production-ready Node.js + Express PDF platform with scalable SEO pages, conversion/editing APIs, and deploy-ready ops defaults.
 
----
+## Production audit status
 
-## ✅ What's Included
+### Fixed issues
 
-### Core PDF Tools (all free, no setup)
-| Tool | Works |
-|---|---|
-| Merge PDF | ✅ |
-| Split PDF | ✅ |
-| Compress PDF | ✅ |
-| Rotate PDF | ✅ |
-| PDF → Word (HTML) | ✅ |
-| PDF → JPG/PNG | ✅ |
-| JPG/PNG → PDF | ✅ |
-| Word → PDF | ✅ |
-| Excel → PDF | ✅ |
-| PowerPoint → PDF | ✅ |
-| PDF → Excel (CSV) | ✅ |
-| PDF → PowerPoint (slides) | ✅ |
-| HTML → PDF | ✅ |
-| Add Watermark | ✅ |
-| Protect PDF (password) | ✅ |
-| Unlock PDF | ✅ |
-| Add Page Numbers | ✅ |
-| Crop PDF | ✅ |
-| Repair PDF | ✅ |
-| OCR PDF (text extraction) | ✅ |
-| Organize PDF (drag-reorder) | ✅ |
-| Delete Pages | ✅ |
-| Extract Pages | ✅ |
-| Scan to PDF | ✅ |
-| **Full PDF Editor** (annotate) | ✅ |
-| **Digital Signature** (draw/type/upload) | ✅ |
+1. **Startup dependency bottleneck**: `npm start` depended on Tailwind CLI, causing runtime failure when dev deps were unavailable. Fixed by making `start` run `node server.js` directly and moving CSS build to `start:full`.
+2. **CJS/ESM compatibility risk** with `pdfjs-dist`: direct `require(...pdf.mjs)` could break at runtime. Fixed using dynamic `import()` in processing functions.
+3. **Frontend script scope issue**: search code was outside the main IIFE in `ui-pages.js`. Fixed and re-minified.
+4. **Missing tool endpoints** requested in audit list: added `protect-pdf`, `unlock-pdf`, `ocr-pdf`, `flatten-pdf` routes/controllers/services.
 
-### AI Tools (requires Anthropic API key)
-| Tool | Notes |
-|---|---|
-| AI Summarize PDF | Uses Claude AI — free tier available |
-| AI Extract Text | Structured data extraction |
-| Translate PDF | 50+ languages |
+## Security / performance / scalability
 
-### Cloud Storage (UI flow — real OAuth needs setup)
-| Integration | Status |
-|---|---|
-| Google Drive | UI ready — real OAuth needs Google Cloud credentials |
-| Dropbox | UI ready — real OAuth needs Dropbox App credentials |
+- Compression enabled (`compression`)
+- Security headers + CSP
+- API rate limiting (`express-rate-limit`)
+- Upload + request body size limits
+- Automatic cleanup scheduler for `uploads/` and `tmp/`
+- Static caching headers + ETag
+- Minified CSS/JS assets
+- Lazy-loaded guide images
+- Programmatic SEO pages + category hubs for horizontal scale
 
----
+## SEO content structure
 
-## 🗂️ Project Structure
+### Tools
+- `/merge-pdf`
+- `/split-pdf`
+- `/compress-pdf`
+- `/pdf-to-word`
+- `/jpg-to-pdf`
 
-```
-pdfmate-pro/
-├── public/                  ← Static files served to browser
-│   ├── index.html           ← Main HTML shell
-│   ├── _headers             ← Cloudflare Pages headers
-│   ├── _redirects           ← Cloudflare Pages SPA routing
-│   └── src/
-│       ├── css/
-│       │   └── styles.css   ← All styles (39KB)
-│       └── js/
-│           ├── tools.js     ← Tool registry (32 tools)
-│           ├── ui.js        ← Rendering, navigation, AI calls
-│           ├── processing.js← PDF runners (PDF-lib + PDF.js)
-│           └── app.js       ← Init, helpers, utilities
-│
-├── api/                     ← Vercel Serverless Functions
-│   ├── ai.js                ← Secure AI proxy (POST /api/ai)
-│   └── health.js            ← Health check (GET /api/health)
-│
-├── functions/               ← Cloudflare Pages Functions
-│   └── api/
-│       └── ai.js            ← Cloudflare AI proxy
-│
-├── server.js                ← Express server (Node.js / Railway)
-├── package.json
-├── vercel.json              ← Vercel config
-├── .env.example             ← Environment variable template
-├── .gitignore
-└── README.md
-```
+### Blog/tutorial pages
+- `/blog/how-to-merge-pdf`
+- `/blog/how-to-compress-pdf`
+- `/blog/how-to-convert-pdf-to-word`
+- `/blog/how-to-edit-pdf-online`
+- `/blog/reduce-pdf-size-free`
 
----
+### Programmatic SEO pages
+- `/best-pdf-tools`
+- `/free-pdf-tools`
+- `/online-pdf-editor`
+- `/compress-large-pdf`
+- `/convert-pdf-fast`
 
-## 🚀 Deployment Options
+### Category hubs
+- `/convert-pdf`
+- `/edit-pdf`
+- `/optimize-pdf`
+- `/security-pdf`
 
-### Option A — Vercel (Recommended, Free)
+## Key API tool endpoints
 
-**Step 1 — Install Vercel CLI**
-```bash
-npm install -g vercel
-```
+### Core PDF
+- `POST /api/merge-pdf`
+- `POST /api/split-pdf`
+- `POST /api/compress-pdf`
+- `POST /api/rotate-pdf`
+- `POST /api/organize-pdf`
+- `POST /api/delete-pdf-pages`
+- `POST /api/extract-pdf-pages`
 
-**Step 2 — Deploy**
-```bash
-cd pdfmate-pro
-npm install
-vercel
-```
+### Conversion
+- `POST /api/jpg-to-pdf`
+- `POST /api/png-to-pdf`
+- `POST /api/word-to-pdf`
+- `POST /api/excel-to-pdf`
+- `POST /api/powerpoint-to-pdf`
+- `POST /api/html-to-pdf`
+- `POST /api/text-to-pdf`
+- `POST /api/pdf-to-jpg`
+- `POST /api/pdf-to-png`
+- `POST /api/pdf-to-word`
+- `POST /api/pdf-to-excel`
+- `POST /api/pdf-to-powerpoint`
+- `POST /api/pdf-to-text`
 
-Follow the prompts:
-- Set up and deploy → `Y`
-- Which scope? → your account
-- Link to existing project? → `N`
-- Project name → `pdfmate-pro`
-- Directory? → `./`
-- Override settings? → `N`
+### Editing/enhancement
+- `POST /api/watermark-pdf`
+- `POST /api/page-numbers`
+- `POST /api/header-footer`
+- `POST /api/background-pdf`
+- `POST /api/crop-pdf`
+- `POST /api/sign-pdf`
+- `POST /api/redact-pdf`
+- `POST /api/compare-pdf`
+- `POST /api/extract-images`
+- `POST /api/protect-pdf`
+- `POST /api/unlock-pdf`
+- `POST /api/ocr-pdf`
+- `POST /api/flatten-pdf`
 
-**Step 3 — Add AI key (optional)**
-```bash
-vercel env add ANTHROPIC_API_KEY
-# Paste your key: sk-ant-...
-# Select: Production, Preview, Development
-vercel --prod  # Redeploy with key
-```
+## Local run
 
-**Step 4 — Custom domain (optional)**
-```bash
-vercel domains add yourdomain.com
-```
-Then add a CNAME record at your registrar:
-```
-www → cname.vercel-dns.com
-```
+1. Install dependencies:
+   ```bash
+   npm install
+   ```
+2. Configure env:
+   ```bash
+   cp .env.example .env
+   ```
+3. Start server:
+   ```bash
+   npm start
+   ```
+4. Optional full CSS build + start:
+   ```bash
+   npm run start:full
+   ```
 
----
+## Deployment instructions
 
-### Option B — Cloudflare Pages (Free, Fastest)
+### Render
+1. Push code to GitHub.
+2. Create Web Service from repo.
+3. Build command: `npm install`
+4. Start command: `npm start`
+5. Add env vars from `.env.example`.
 
-**Step 1 — Push to GitHub**
-```bash
-git init
-git add .
-git commit -m "Initial commit"
-git remote add origin https://github.com/YOUR_USERNAME/pdfmate-pro.git
-git push -u origin main
-```
+### Railway
+1. Push code to GitHub.
+2. Deploy from GitHub repo.
+3. Ensure start command `npm start`.
+4. Add env vars from `.env.example`.
 
-**Step 2 — Connect to Cloudflare Pages**
-1. Go to [pages.cloudflare.com](https://pages.cloudflare.com)
-2. Click **Create a project** → **Connect to Git**
-3. Select your `pdfmate-pro` repo
-4. Configure build:
-   - **Framework preset**: None
-   - **Build command**: *(leave empty)*
-   - **Build output directory**: `public`
-5. Click **Save and Deploy**
+### DigitalOcean App Platform
+1. Push code to GitHub.
+2. Create App from repo.
+3. Build command: `npm install`
+4. Run command: `npm start`
+5. Add env vars from `.env.example`.
 
-**Step 3 — Add AI environment variable**
-1. In Cloudflare Pages → your project → **Settings → Environment Variables**
-2. Add: `ANTHROPIC_API_KEY` = `sk-ant-your-key-here`
-3. Redeploy
-
-**Custom domain**: Settings → Custom domains → Add domain
-
----
-
-### Option C — Railway (Node.js backend, Free tier)
-
-Best if you want the full Express server running:
-
-```bash
-# Install Railway CLI
-npm install -g @railway/cli
-
-# Login and deploy
-railway login
-railway init
-railway up
-```
-
-Set environment variable:
-```bash
-railway variables set ANTHROPIC_API_KEY=sk-ant-your-key-here
-```
-
----
-
-### Option D — Local Development
-
-```bash
-# Clone / download the project
-cd pdfmate-pro
-
-# Install dependencies
-npm install
-
-# Copy env template and add your key
-cp .env.example .env
-# Edit .env — add your ANTHROPIC_API_KEY
-
-# Start development server
-npm run dev   # or: npm start
-
-# Open browser
-open http://localhost:3000
-```
-
----
-
-## 🔑 Getting Your Anthropic API Key
-
-AI tools (Summarize, Extract, Translate) use Claude AI:
-
-1. Go to [console.anthropic.com](https://console.anthropic.com)
-2. Sign up (free — no credit card required)
-3. Go to **API Keys** → **Create Key**
-4. Copy the key (starts with `sk-ant-`)
-5. Add to your deployment's environment variables as `ANTHROPIC_API_KEY`
-
-**Free tier includes** enough usage for hundreds of PDF summaries per month.
-
----
-
-## 🎨 Customisation
-
-### Change brand colors
-Edit `public/src/css/styles.css`, find the `:root` block:
-```css
-:root {
-  --red: #e8354a;    /* Primary brand color */
-  --red-h: #d42d40;  /* Hover state */
-  --red-l: #fff0f2;  /* Light tint */
-  /* Change to any color: */
-  /* --red: #2563eb;  Blue */
-  /* --red: #059669;  Green */
-  /* --red: #7c3aed;  Purple */
-}
-```
-
-### Change site name
-In `public/index.html`, replace all `PDFMate` with your brand name.
-
-### Deep-link to tools
-Any tool can be linked directly:
-```
-https://yoursite.com/#merge
-https://yoursite.com/#compress
-https://yoursite.com/#ai-summarize
-https://yoursite.com/#sign-pdf
-```
-
-### Add Google Analytics
-Paste before `</head>` in `public/index.html`:
-```html
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXX"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', 'G-XXXXXXXX');
-</script>
-```
-
----
-
-## 🛡️ Security Notes
-
-- **API keys** are handled server-side by the `/api/ai` proxy — never exposed in browser code
-- **PDF processing** happens entirely in the browser — no file uploads
-- **HTTPS** is provided automatically by Vercel, Cloudflare, and Railway
-- The `.env` file is in `.gitignore` — never commit it
-
----
-
-## 📦 Tech Stack
-
-| Layer | Technology |
-|---|---|
-| Frontend | Vanilla HTML/CSS/JS (no framework) |
-| PDF Processing | [pdf-lib 1.17.1](https://pdf-lib.js.org/) |
-| PDF Rendering | [PDF.js 3.11](https://mozilla.github.io/pdf.js/) |
-| ZIP packaging | [JSZip 3.10](https://stuk.github.io/jszip/) |
-| AI | [Anthropic Claude](https://anthropic.com) via secure proxy |
-| Font | [Plus Jakarta Sans](https://fonts.google.com/specimen/Plus+Jakarta+Sans) |
-| Backend | Node.js + Express (optional) |
-| Deploy | Vercel / Cloudflare Pages / Railway |
-
----
-
-## 📄 License
-
-MIT — free to use, modify, and deploy commercially.
-
----
-
-*PDFMate Pro v1.0.0*
+### Standard flow
+1. Push code to GitHub
+2. Connect hosting
+3. Install dependencies
+4. Run `npm start`

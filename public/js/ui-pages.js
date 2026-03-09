@@ -1,0 +1,73 @@
+(() => {
+  const root = document.documentElement;
+  const toggle = document.getElementById('theme-toggle');
+  const storedTheme = localStorage.getItem('ppm-theme');
+  if (storedTheme) root.setAttribute('data-theme', storedTheme);
+
+  toggle?.addEventListener('click', () => {
+    const next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    root.setAttribute('data-theme', next);
+    localStorage.setItem('ppm-theme', next);
+    toggle.textContent = next === 'dark' ? '☀️ Light' : '🌙 Dark';
+  });
+
+  document.querySelectorAll('[data-upload]').forEach((wrapper) => {
+    const input = wrapper.querySelector('input[type=file]');
+    const zone = wrapper.querySelector('.upload-zone');
+    const preview = wrapper.querySelector('.preview');
+    const progress = wrapper.querySelector('.progress');
+    const progressBar = progress?.querySelector('span');
+
+    const runProgress = () => {
+      if (!progress || !progressBar) return;
+      progress.style.display = 'block';
+      let value = 0;
+      const timer = setInterval(() => {
+        value += 10;
+        progressBar.style.width = `${Math.min(value, 100)}%`;
+        if (value >= 100) clearInterval(timer);
+      }, 120);
+    };
+
+    const onFiles = (files) => {
+      if (!files || !files.length) return;
+      if (preview) {
+        preview.style.display = 'block';
+        preview.innerHTML = `<strong>Selected:</strong> ${files[0].name} <br/><small>${Math.round(files[0].size / 1024)} KB</small>`;
+      }
+      runProgress();
+    };
+
+    zone?.addEventListener('click', () => input?.click());
+    input?.addEventListener('change', (e) => onFiles(e.target.files));
+
+    ['dragenter', 'dragover'].forEach((eventName) => {
+      zone?.addEventListener(eventName, (e) => {
+        e.preventDefault();
+        zone.classList.add('drag');
+      });
+    });
+
+    ['dragleave', 'drop'].forEach((eventName) => {
+      zone?.addEventListener(eventName, (e) => {
+        e.preventDefault();
+        zone.classList.remove('drag');
+      });
+    });
+
+    zone?.addEventListener('drop', (e) => {
+      if (input) input.files = e.dataTransfer.files;
+      onFiles(e.dataTransfer.files);
+    });
+  });
+
+  const search = document.getElementById('tool-search');
+  const cards = Array.from(document.querySelectorAll('#tool-grid .tool-card'));
+  search?.addEventListener('input', () => {
+    const q = search.value.trim().toLowerCase();
+    cards.forEach((card) => {
+      const text = (card.getAttribute('data-name') || card.textContent || '').toLowerCase();
+      card.style.display = text.includes(q) ? '' : 'none';
+    });
+  });
+})();
