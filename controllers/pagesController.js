@@ -7,10 +7,7 @@ const sendSeoView = (res, fileName) => res.sendFile(path.join(__dirname, '..', '
 const sendCategoryView = (res, fileName) => res.sendFile(path.join(__dirname, '..', 'views', 'categories', fileName));
 
 const renderHomePage = (req, res) => sendView(res, 'index.html');
-const renderToolPage = (req, res) => {
-  if (req.params.slug === 'all-tools') return sendCategoryView(res, 'all-tools.html');
-  return sendToolView(res, `${req.params.slug}.html`);
-};
+const renderToolPage = (req, res) => sendToolView(res, `${req.params.slug}.html`);
 const renderBlogPage = (req, res) => sendBlogView(res, `${req.params.slug}.html`);
 const renderSeoPage = (req, res) => sendSeoView(res, `${req.params.slug}.html`);
 const renderCategoryPage = (req, res) => sendCategoryView(res, `${req.params.slug}.html`);

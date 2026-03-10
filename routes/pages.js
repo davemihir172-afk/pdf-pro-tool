@@ -9,37 +9,7 @@ const {
 
 const router = express.Router();
 
-const toolPages = [
-  'merge-pdf',
-  'split-pdf',
-  'compress-pdf',
-  'rotate-pdf',
-  'organize-pdf',
-  'delete-pdf-pages',
-  'extract-pdf-pages',
-  'jpg-to-pdf',
-  'png-to-pdf',
-  'word-to-pdf',
-  'excel-to-pdf',
-  'powerpoint-to-pdf',
-  'html-to-pdf',
-  'pdf-to-jpg',
-  'pdf-to-png',
-  'pdf-to-word',
-  'pdf-to-excel',
-  'pdf-to-powerpoint',
-  'pdf-to-text',
-  'protect-pdf',
-  'unlock-pdf',
-  'remove-pdf-restrictions',
-  'sign-pdf',
-  'repair-pdf',
-  'reduce-pdf-size',
-  'extract-images',
-  'ocr-pdf',
-  'flatten-pdf',
-  'all-tools'
-];
+const toolPages = ['merge-pdf', 'split-pdf', 'compress-pdf', 'pdf-to-word', 'jpg-to-pdf'];
 const blogPages = [
   'how-to-merge-pdf',
   'how-to-compress-pdf',
