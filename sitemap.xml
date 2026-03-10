@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>http://localhost:3000/</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>http://localhost:3000/merge-pdf</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>http://localhost:3000/split-pdf</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>http://localhost:3000/compress-pdf</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>http://localhost:3000/pdf-to-word</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>http://localhost:3000/jpg-to-pdf</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>http://localhost:3000/rotate-pdf</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>http://localhost:3000/organize-pdf</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>http://localhost:3000/delete-pdf-pages</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>http://localhost:3000/extract-pdf-pages</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>http://localhost:3000/protect-pdf</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>http://localhost:3000/unlock-pdf</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>http://localhost:3000/ocr-pdf</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>http://localhost:3000/flatten-pdf</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>http://localhost:3000/convert-pdf</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>http://localhost:3000/edit-pdf</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>http://localhost:3000/optimize-pdf</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>http://localhost:3000/security-pdf</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>http://localhost:3000/all-tools</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>http://localhost:3000/best-pdf-tools</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>http://localhost:3000/free-pdf-tools</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>http://localhost:3000/online-pdf-editor</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>http://localhost:3000/compress-large-pdf</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>http://localhost:3000/convert-pdf-fast</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>http://localhost:3000/blog/how-to-merge-pdf</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>http://localhost:3000/blog/how-to-compress-pdf</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>http://localhost:3000/blog/how-to-convert-pdf-to-word</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>http://localhost:3000/blog/how-to-edit-pdf-online</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>http://localhost:3000/blog/reduce-pdf-size-free</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+</urlset>
