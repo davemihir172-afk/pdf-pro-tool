@@ -1,0 +1,11 @@
+{
+  "name": "@propdfmate/api",
+  "version": "1.0.0",
+  "private": true,
+  "main": "src/server.js",
+  "scripts": {
+    "dev": "node src/server.js",
+    "build": "node -e \"console.log('api build complete')\"",
+    "start": "node src/server.js"
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "name": "@propdfmate/worker",
+  "version": "1.0.0",
+  "private": true,
+  "main": "src/worker.js",
+  "scripts": {
+    "dev": "node src/worker.js",
+    "build": "node -e \"console.log('worker build complete')\"",
+    "start": "node src/worker.js"
+  }
+}
