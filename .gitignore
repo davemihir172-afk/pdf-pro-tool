@@ -27,3 +27,6 @@ npm-debug.log*
 
 # Avoid binary assets in this environment
 public/images/logo.png
+
+.next/
+tmp/output/
