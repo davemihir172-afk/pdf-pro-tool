@@ -1,22 +1,14 @@
 const http = require('http');
+const { Worker } = require('worker_threads');
 const path = require('path');
-const { enqueueJob, getJob } = require('@propdfmate/queue');
-const { readOutputBuffer } = require('@propdfmate/storage');
-const { extractPdfText, callOpenAI } = require('@propdfmate/ai-tools');
 
 const port = Number(process.env.API_PORT || 4000);
-const TOOL_ROUTES = new Set(['merge', 'split', 'compress', 'rotate', 'delete-pages', 'extract-pages']);
-const CONVERSION_ROUTES = new Set([
-  'pdf-to-word', 'pdf-to-excel', 'pdf-to-powerpoint', 'pdf-to-jpg', 'pdf-to-png', 'pdf-to-txt',
-  'jpg-to-pdf', 'png-to-pdf', 'word-to-pdf', 'excel-to-pdf', 'powerpoint-to-pdf', 'html-to-pdf'
-]);
 
 function sendJson(res, status, payload) {
   res.writeHead(status, {
     'Content-Type': 'application/json',
     'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Methods': 'GET,POST,OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type'
+    'Access-Control-Allow-Methods': 'GET,POST,OPTIONS'
   });
   res.end(JSON.stringify(payload));
 }
@@ -34,31 +26,26 @@ function parseMultipart(body, boundary) {
     start = end + delimiter.length + 2;
   }
 
-  const files = [];
-  const fields = {};
-
-  for (const part of parts) {
-    const headerEnd = part.indexOf(Buffer.from('\r\n\r\n'));
-    if (headerEnd === -1) continue;
-    const headers = part.slice(0, headerEnd).toString('utf8');
-    const content = part.slice(headerEnd + 4);
-    const nameMatch = headers.match(/name="([^"]+)"/);
-    const fileNameMatch = headers.match(/filename="([^"]+)"/);
-    const fieldName = nameMatch?.[1];
-    if (!fieldName) continue;
-
-    if (headers.includes('filename=')) files.push({ content, fileName: fileNameMatch?.[1] || 'upload.bin' });
-    else fields[fieldName] = content.toString('utf8').trim();
-  }
-
-  return { files, fields };
+  return parts
+    .map((part) => {
+      const headerEnd = part.indexOf(Buffer.from('\r\n\r\n'));
+      if (headerEnd === -1) return null;
+      const headers = part.slice(0, headerEnd).toString('utf8');
+      const content = part.slice(headerEnd + 4);
+      if (!headers.includes('filename=')) return null;
+      return content;
+    })
+    .filter(Boolean);
 }
 
-function mapPdfToolToJob(tool) {
-  if (tool === 'merge') return 'merge-pdf';
-  if (tool === 'split') return 'split-pdf';
-  if (tool === 'compress') return 'compress-pdf';
-  return 'ocr-pdf';
+function runMergeThread(files) {
+  return new Promise((resolve, reject) => {
+    const worker = new Worker(path.join(__dirname, 'thread-merge.js'), {
+      workerData: { files }
+    });
+    worker.once('message', (msg) => (msg.ok ? resolve(Buffer.from(msg.buffer)) : reject(new Error(msg.error))));
+    worker.once('error', reject);
+  });
 }
 
 http.createServer(async (req, res) => {
@@ -71,97 +58,31 @@ http.createServer(async (req, res) => {
     return res.end();
   }
 
-  if (req.url === '/health' && req.method === 'GET') return sendJson(res, 200, { status: 'ok' });
-
-  const pdfMatch = req.url.match(/^\/api\/pdf\/([a-z-]+)$/);
-  if (req.method === 'POST' && pdfMatch && TOOL_ROUTES.has(pdfMatch[1])) {
-    const tool = pdfMatch[1];
-    const chunks = []; for await (const chunk of req) chunks.push(chunk);
-    const boundaryMatch = (req.headers['content-type'] || '').match(/boundary=(.+)$/);
-    if (!boundaryMatch) return sendJson(res, 400, { error: 'Invalid multipart payload.' });
-
-    const { files, fields } = parseMultipart(Buffer.concat(chunks), boundaryMatch[1]);
-    if (tool === 'merge' && files.length < 2) return sendJson(res, 400, { error: 'At least two PDFs are required.' });
-    if (tool !== 'merge' && files.length < 1) return sendJson(res, 400, { error: 'A PDF file is required.' });
-
-    const job = await enqueueJob(mapPdfToolToJob(tool), {
-      tool,
-      files: files.map((file) => file.content.toString('base64')),
-      fields
-    });
-
-    return sendJson(res, 202, { jobId: job.id, status: job.status, progress: job.progress });
+  if (req.url === '/health' && req.method === 'GET') {
+    return sendJson(res, 200, { status: 'ok' });
   }
 
-  const convertMatch = req.url.match(/^\/api\/convert\/([a-z-]+)$/);
-  if (req.method === 'POST' && convertMatch && CONVERSION_ROUTES.has(convertMatch[1])) {
-    const tool = convertMatch[1];
-    const chunks = []; for await (const chunk of req) chunks.push(chunk);
-    const boundaryMatch = (req.headers['content-type'] || '').match(/boundary=(.+)$/);
-    if (!boundaryMatch) return sendJson(res, 400, { error: 'Invalid multipart payload.' });
+  if (req.url === '/api/pdf/merge' && req.method === 'POST') {
+    const chunks = [];
+    for await (const chunk of req) chunks.push(chunk);
+    const body = Buffer.concat(chunks);
+    const contentType = req.headers['content-type'] || '';
+    const match = contentType.match(/boundary=(.+)$/);
+    if (!match) return sendJson(res, 400, { error: 'Invalid multipart payload.' });
 
-    const { files } = parseMultipart(Buffer.concat(chunks), boundaryMatch[1]);
-    if (files.length < 1) return sendJson(res, 400, { error: 'A file is required.' });
+    const files = parseMultipart(body, match[1]);
+    if (files.length < 2) return sendJson(res, 400, { error: 'At least two PDFs are required.' });
 
-    const job = await enqueueJob('convert-pdf', {
-      tool,
-      fileName: files[0].fileName,
-      file: files[0].content.toString('base64')
-    });
-
-    return sendJson(res, 202, { jobId: job.id, status: job.status, progress: job.progress });
-  }
-
-
-  const aiMatch = req.url.match(/^\/api\/ai\/(summarize|translate|extract-tables)$/);
-  if (req.method === 'POST' && aiMatch) {
-    const aiTask = aiMatch[1];
-    const chunks = []; for await (const chunk of req) chunks.push(chunk);
-    const boundaryMatch = (req.headers['content-type'] || '').match(/boundary=(.+)$/);
-    if (!boundaryMatch) return sendJson(res, 400, { error: 'Invalid multipart payload.' });
-
-    const { files, fields } = parseMultipart(Buffer.concat(chunks), boundaryMatch[1]);
-    if (files.length < 1) return sendJson(res, 400, { error: 'A PDF file is required.' });
-
-    try {
-      const extractedText = extractPdfText(files[0].content);
-      if (!extractedText) return sendJson(res, 400, { error: 'No extractable text found in PDF.' });
-      const result = await callOpenAI({ task: aiTask, text: extractedText, language: fields.language });
-      return sendJson(res, 200, { result });
-    } catch (error) {
-      return sendJson(res, 500, { error: error.message });
-    }
-  }
-
-  const jobMatch = req.url.match(/^\/api\/job\/([0-9a-f-]+)$/i);
-  if (req.method === 'GET' && jobMatch) {
-    const job = await getJob(jobMatch[1]);
-    if (!job) return sendJson(res, 404, { error: 'Job not found.' });
-
-    return sendJson(res, 200, {
-      id: job.id,
-      status: job.status,
-      progress: job.progress,
-      downloadUrl: job.result?.downloadUrl || null,
-      error: job.error || null
-    });
-  }
-
-  const downloadMatch = req.url.match(/^\/api\/job\/([0-9a-f-]+)\/download$/i);
-  if (req.method === 'GET' && downloadMatch) {
-    const job = await getJob(downloadMatch[1]);
-    if (!job || job.status !== 'completed' || !job.result?.outputPath) return sendJson(res, 404, { error: 'Output not available.' });
-
-    const buffer = await readOutputBuffer(path.resolve(job.result.outputPath));
+    const merged = await runMergeThread(files.map((b) => b.toString('base64')));
     res.writeHead(200, {
-      'Access-Control-Allow-Origin': '*',
-      'Content-Type': job.result.mimeType || 'application/octet-stream',
-      'Content-Disposition': `attachment; filename="${job.result.fileName || 'output.bin'}"`
+      'Content-Type': 'application/pdf',
+      'Content-Disposition': 'attachment; filename="merged.pdf"',
+      'Access-Control-Allow-Origin': '*'
     });
-    return res.end(buffer);
+    return res.end(merged);
   }
 
-  return sendJson(res, 404, { error: 'Not found' });
+  sendJson(res, 404, { error: 'Not found' });
 }).listen(port, () => {
   console.log(`API running on http://localhost:${port}`);
 });

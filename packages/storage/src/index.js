@@ -1,7 +1,7 @@
 const fs = require('fs/promises');
 const path = require('path');
 
-const OUTPUT_DIR = path.resolve(__dirname, '../../../tmp/output');
+const OUTPUT_DIR = path.join(process.cwd(), 'tmp', 'output');
 
 async function ensureOutputDir() {
   await fs.mkdir(OUTPUT_DIR, { recursive: true });
@@ -18,12 +18,7 @@ async function readOutputBuffer(filePath) {
   return fs.readFile(filePath);
 }
 
-function getOutputPath(fileName) {
-  return path.join(OUTPUT_DIR, fileName);
-}
-
 module.exports = {
   writeOutputBuffer,
-  readOutputBuffer,
-  getOutputPath
+  readOutputBuffer
 };
