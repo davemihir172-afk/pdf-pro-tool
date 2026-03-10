@@ -1,44 +1,43 @@
 # Pro PDF Mate
 
-Monorepo PDF toolkit with web, API, and worker services.
+Pro PDF Mate is a monorepo full-stack PDF toolkit with a Next.js frontend, Express API, BullMQ queue, Redis, and worker-thread based processing.
 
-## Queue + worker architecture
+## Monorepo layout
 
-- API uploads files and creates background jobs.
-- Jobs are pushed through `packages/queue`.
-- `apps/worker` processes jobs concurrently with worker threads.
-- API exposes `GET /api/job/:id` for status/progress and `GET /api/job/:id/download` for output.
+- `apps/web` – Next.js 14 frontend (homepage + Merge PDF tool)
+- `apps/api` – Express API with Multer uploads
+- `apps/worker` – BullMQ worker + worker threads
+- `packages/pdf-engine` – PDF-LIB merge engine
+- `packages/queue` – shared queue/Redis config
+- `packages/storage` – output storage helpers
+- `packages/ui` – shared UI components
+- `prisma` – sample schema
+- `infra` – Dockerfiles and docker-compose
 
-Queue job types:
-- `merge-pdf`
-- `split-pdf`
-- `compress-pdf`
-- `convert-pdf`
-- `ocr-pdf`
+## Run locally
 
-## Tools
+1. Start Redis (Docker recommended):
+   ```bash
+   docker run --rm -p 6379:6379 redis:7-alpine
+   ```
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+3. Build all apps:
+   ```bash
+   npm run build
+   ```
+4. Start web + api + worker:
+   ```bash
+   npm start
+   ```
 
-### PDF tools
-- Merge PDF
-- Split PDF
-- Compress PDF
-- Rotate PDF
-- Delete Pages
-- Extract Pages
+- Web: `http://localhost:3000`
+- API: `http://localhost:4000`
 
-### Conversion tools
-- PDF to Word / Excel / PowerPoint / JPG / PNG / TXT
-- JPG/PNG to PDF
-- Word/Excel/PowerPoint/HTML to PDF
-
-All tools follow: **Upload → Process document → Preview result → Download output**.
-
-## Run
+## Docker Compose
 
 ```bash
-npm install
-npm run build
-npm start
+docker compose -f infra/docker-compose.yml up --build
 ```
-
-Open `http://localhost:3000`.

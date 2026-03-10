@@ -7,9 +7,5 @@
     "dev": "node src/server.js",
     "build": "node -e \"console.log('api build complete')\"",
     "start": "node src/server.js"
-  },
-  "dependencies": {
-    "@propdfmate/queue": "1.0.0",
-    "@propdfmate/storage": "1.0.0"
   }
 }
