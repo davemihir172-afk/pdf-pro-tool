@@ -87,33 +87,18 @@
 
     xhr.onload = async () => {
       progress.style.width = '100%';
-      if (xhr.status !== 200) {
-        try {
-          const failureBlob = xhr.response;
-          const failureText = await failureBlob.text();
-          const failureJson = JSON.parse(failureText);
-          error.textContent = failureJson.error || 'Processing failed. Please try again.';
-        } catch (_err) {
-          error.textContent = 'Processing failed. Please try again.';
-        }
-        return;
-      }
+      if (xhr.status !== 200) return void (error.textContent = 'Processing failed. Please try again.');
 
       const blob = xhr.response;
       const url = URL.createObjectURL(blob);
-      const disposition = xhr.getResponseHeader('Content-Disposition') || '';
-      const nameMatch = disposition.match(/filename="?([^";]+)"?/i);
       download.href = url;
-      download.download = nameMatch ? nameMatch[1] : `${tool}-output`;
+      download.download = `${tool}-output`;
 
       if (previewType === 'image') {
         previewImage.src = url;
         previewImage.classList.remove('hidden');
       } else if (previewType === 'text') {
         previewText.textContent = await blob.text();
-        previewText.classList.remove('hidden');
-      } else if (previewType === 'doc') {
-        previewText.textContent = `Conversion complete: ${download.download}. Use Download Output to open the converted file.`;
         previewText.classList.remove('hidden');
       } else {
         previewFrame.src = url;
