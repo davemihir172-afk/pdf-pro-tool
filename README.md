@@ -1,69 +1,43 @@
 # Pro PDF Mate
 
-Production-ready monorepo PDF toolkit with API, web, worker, queue, AI tools, and deployment configs.
+Pro PDF Mate is a monorepo full-stack PDF toolkit with a Next.js frontend, Express API, BullMQ queue, Redis, and worker-thread based processing.
 
-## Local run
+## Monorepo layout
 
-```bash
-npm install
-npm run build
-npm start
-```
+- `apps/web` – Next.js 14 frontend (homepage + Merge PDF tool)
+- `apps/api` – Express API with Multer uploads
+- `apps/worker` – BullMQ worker + worker threads
+- `packages/pdf-engine` – PDF-LIB merge engine
+- `packages/queue` – shared queue/Redis config
+- `packages/storage` – output storage helpers
+- `packages/ui` – shared UI components
+- `prisma` – sample schema
+- `infra` – Dockerfiles and docker-compose
+
+## Run locally
+
+1. Start Redis (Docker recommended):
+   ```bash
+   docker run --rm -p 6379:6379 redis:7-alpine
+   ```
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+3. Build all apps:
+   ```bash
+   npm run build
+   ```
+4. Start web + api + worker:
+   ```bash
+   npm start
+   ```
 
 - Web: `http://localhost:3000`
 - API: `http://localhost:4000`
 
-## Security hardening included
-
-- Request rate limiting (in-memory sliding window)
-- Upload size limits (`MAX_UPLOAD_BYTES`)
-- File type validation for PDF endpoints
-- Upload filename sanitization
-- Temporary upload storage with automatic cleanup after processing
-- Output cleanup scheduler in worker
-
-## Environment variables
-
-Copy `.env.example` to `.env` and set values:
-
-- `PORT`
-- `UPLOAD_DIR`
-- `REDIS_URL`
-- `OPENAI_API_KEY`
-- plus optional limits/concurrency controls
-
-## Docker deployment
-
-### Single image
+## Docker Compose
 
 ```bash
-docker build -t propdfmate .
-docker run --rm -p 3000:3000 -p 4000:4000 --env-file .env propdfmate
+docker compose -f infra/docker-compose.yml up --build
 ```
-
-### Multi-service with Docker Compose
-
-```bash
-docker compose up --build
-```
-
-Services:
-- `web`
-- `api`
-- `worker`
-- `redis`
-
-## Railway deployment
-
-- `railway.json` is included for Docker-based deployment.
-- Set env vars from `.env.example` in Railway project settings.
-
-## Render deployment
-
-- `render.yaml` is included with web/api/worker services.
-- Set environment variables (including `OPENAI_API_KEY`) in Render dashboard.
-
-## Notes
-
-- Queue is file-backed for local reliability and background processing.
-- AI endpoints require `OPENAI_API_KEY`.
