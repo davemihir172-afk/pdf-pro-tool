@@ -1,0 +1,8 @@
+FROM node:20-alpine
+WORKDIR /app
+COPY package*.json ./
+COPY apps ./apps
+COPY packages ./packages
+RUN npm install
+RUN npm run build -w @propdfmate/worker
+CMD ["npm", "run", "start", "-w", "@propdfmate/worker"]

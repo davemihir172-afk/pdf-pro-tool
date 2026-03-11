@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: propdfmate-web
+    env: node
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: npm run start -w @propdfmate/web
+
+  - type: web
+    name: propdfmate-api
+    env: node
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: npm run start -w @propdfmate/api
+
+  - type: worker
+    name: propdfmate-worker
+    env: node
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: npm run start -w @propdfmate/worker
