@@ -1,0 +1,10 @@
+{
+  "name": "@propdfmate/web",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "node server.js",
+    "build": "node -e \"console.log('web build complete')\"",
+    "start": "node server.js"
+  }
+}
