@@ -1,0 +1,43 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Merge PDF - Pro PDF Mate</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-950 text-white">
+  <main class="mx-auto min-h-screen max-w-3xl px-6 py-16">
+    <a href="/" class="text-sm text-sky-400">← Back to tools</a>
+    <h1 class="mt-4 text-3xl font-semibold">Merge PDF</h1>
+    <form id="merge-form" class="mt-8 space-y-4 rounded-2xl border border-slate-800 bg-slate-900/60 p-6">
+      <input id="files" type="file" multiple accept="application/pdf" class="block w-full rounded-lg border border-slate-700 bg-slate-950 p-3 text-sm" />
+      <button class="rounded-lg bg-sky-500 px-4 py-2 font-medium text-slate-950">Merge and Download</button>
+      <p id="error" class="text-sm text-rose-400"></p>
+    </form>
+  </main>
+  <script>
+    document.getElementById('merge-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const input = document.getElementById('files');
+      const error = document.getElementById('error');
+      if (!input.files || input.files.length < 2) {
+        error.textContent = 'Please select at least two PDF files.';
+        return;
+      }
+      const form = new FormData();
+      [...input.files].forEach(file => form.append('files', file));
+      const response = await fetch('/api/pdf/merge', { method: 'POST', body: form });
+      if (!response.ok) {
+        error.textContent = 'Unable to merge PDFs right now.';
+        return;
+      }
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = 'merged.pdf'; a.click();
+      URL.revokeObjectURL(url);
+    });
+  </script>
+</body>
+</html>
