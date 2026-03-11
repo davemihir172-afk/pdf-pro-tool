@@ -8,8 +8,7 @@
   ],
   "scripts": {
     "build": "npm run build -w @propdfmate/web && npm run build -w @propdfmate/api && npm run build -w @propdfmate/worker",
-    "start": "node apps/api/src/server.js",
-    "start:all": "npm run start -w @propdfmate/api & npm run start -w @propdfmate/worker & npm run start -w @propdfmate/web",
+    "start": "npm run start -w @propdfmate/api & npm run start -w @propdfmate/worker & npm run start -w @propdfmate/web",
     "dev": "npm run dev -w @propdfmate/api & npm run dev -w @propdfmate/worker & npm run dev -w @propdfmate/web"
   },
   "engines": {

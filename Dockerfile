@@ -10,5 +10,5 @@ COPY infra ./infra
 RUN npm install
 RUN npm run build
 
-EXPOSE 3000
+EXPOSE 3000 4000
 CMD ["npm", "start"]

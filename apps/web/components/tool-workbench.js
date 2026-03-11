@@ -1,7 +1,9 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 
 export function ToolWorkbench({ tool }) {
   const [files, setFiles] = useState([]);
@@ -12,6 +14,7 @@ export function ToolWorkbench({ tool }) {
   const [downloadUrl, setDownloadUrl] = useState('');
   const [error, setError] = useState('');
 
+  const endpoint = useMemo(() => `${API_URL}${tool.endpoint}`, [tool.endpoint]);
 
   const onDrop = (event) => {
     event.preventDefault();
@@ -33,7 +36,7 @@ export function ToolWorkbench({ tool }) {
     files.forEach((file) => formData.append('files', file));
 
     try {
-      const response = await fetch(tool.endpoint, { method: 'POST', body: formData });
+      const response = await fetch(endpoint, { method: 'POST', body: formData });
       setProgress(70);
       const payload = await response.json();
       if (!response.ok) throw new Error(payload.error || 'Processing failed.');
@@ -48,7 +51,7 @@ export function ToolWorkbench({ tool }) {
         let job;
         do {
           await new Promise((resolve) => setTimeout(resolve, 900));
-          const jobRes = await fetch(`/api/job/${jobId}`);
+          const jobRes = await fetch(`${API_URL}/api/job/${jobId}`);
           job = await jobRes.json();
           setProgress(job.progress || 0);
           setStatus(job.status);
@@ -56,7 +59,7 @@ export function ToolWorkbench({ tool }) {
 
         if (job.status === 'failed') throw new Error(job.error || 'Job failed');
 
-        const finalUrl = job.downloadUrl;
+        const finalUrl = `${API_URL}${job.downloadUrl}`;
         setDownloadUrl(finalUrl);
         setResult('Processing complete. Preview available below.');
       }
